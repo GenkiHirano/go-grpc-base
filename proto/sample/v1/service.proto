@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package sample.v1;
+
+import "sample/v1/sample_user.proto";
+
+option go_package = "github.com/GenkiHirano/go-grpc-base/internal/gen/sample/v1;samplev1";
+
+service SampleService {
+  rpc SampleCreateUser(sample.v1.SampleCreateUserRequest) returns (sample.v1.SampleCreateUserResponse) {}
+}

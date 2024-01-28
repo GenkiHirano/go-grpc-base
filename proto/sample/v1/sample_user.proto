@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package sample.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/GenkiHirano/go-grpc-base/internal/gen/sample/v1;samplev1";
+
+message SampleCreateUserRequest {
+  string name = 1;
+  // 汎用value object (住所・email等) も追加する
+  google.protobuf.Timestamp birth_day = 2;
+}
+
+message SampleCreateUserResponse {}
