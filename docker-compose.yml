@@ -1,0 +1,57 @@
+version: "3.8"
+services:
+  sample_app:
+    container_name: ${APP_NAME}
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    build:
+      context: backend
+      dockerfile: container/Dockerfile.dev
+      target: develop
+    volumes:
+      - ./backend:/app
+    tty: true
+    stdin_open: true
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT}
+      APP_KEY: ${APP_KEY}
+      APP_NAME: ${APP_NAME}
+      APP_PORT: ${APP_PORT}
+      DB_DRIVER: ${DB_DRIVER}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+    depends_on:
+      - sample_db
+
+  sample_db:
+    container_name: sample_db
+    image: mysql:8
+    command: --log-bin-trust-function-creators=1
+    environment:
+      # TODO: 他の環境変数は定義しなくて良いのか確認する
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    platform: linux/arm64
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - db:/var/lib/mysql
+
+  sample_buf:
+    container_name: sample_buf
+    image: bufbuild/buf
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+
+volumes:
+  db:

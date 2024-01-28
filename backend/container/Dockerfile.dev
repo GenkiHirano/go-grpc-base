@@ -1,0 +1,18 @@
+FROM golang:1.21 AS develop
+
+ARG TARGETOS=linux
+ARG TARGETARCH=amd64
+ENV TZ=Asia/Tokyo
+
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY ./internal ./internal
+
+RUN go install github.com/cosmtrek/air@v1.40.4 && \
+    go install honnef.co/go/tools/cmd/staticcheck@latest && \
+    go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest && \
+    go install github.com/tenntenn/testtime/cmd/testtime@latest
+COPY .air.toml ./
+
+CMD ["air", "-c", ".air.toml"]

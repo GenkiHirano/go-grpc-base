@@ -13,7 +13,7 @@ rebuild-up:
 init:
 	@make up
 	@make proto
-	@make migrate
+# @make migrate
 
 # setup-db:
 # 	@make migrate-down
@@ -36,13 +36,16 @@ reup:
 ps:
 	docker-compose ps
 
+log:
+	docker-compose logs -f sample_app
+
 proto:
 	rm -rf backend/internal/gen
-	docker-compose run --rm ai_fortune_buf generate --template=buf.gen.ai_fortune.yaml --path=proto/sample
+	docker-compose run --rm sample_buf generate --template=buf.gen.yaml --path=proto/sample
 
 proto-mod-update:
-	docker-compose run -w /workspace/proto ai_fortune_buf mod update
+	docker-compose run -w /workspace/proto sample_buf mod update
 
 proto-check:
-	docker-compose run --rm ai_fortune_buf format -w
-	docker-compose run --rm ai_fortune_buf lint
+	docker-compose run --rm sample_buf format -w
+	docker-compose run --rm sample_buf lint
