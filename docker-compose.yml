@@ -6,7 +6,7 @@ services:
       - "${APP_PORT}:${APP_PORT}"
     build:
       context: backend
-      dockerfile: container/Dockerfile.dev
+      dockerfile: build/Dockerfile.dev
       target: develop
     volumes:
       - ./backend:/app

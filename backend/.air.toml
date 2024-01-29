@@ -2,7 +2,7 @@ root = "./internal"
 tmp_dir = "../tmp"
 
 [build]
-cmd = "go build -o ./tmp/main ./internal"
+cmd = "go build -o ./tmp/main ./internal/cmd/server"
 bin = "./tmp/main"
 full_bin = "APP_ENV=dev APP_USER=air ./tmp/main"
 include_ext = ["go", "tpl", "tmpl", "html"]

@@ -10,7 +10,7 @@ RUN go mod download
 
 COPY internal/ internal/
 
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -o backend ./internal/main.go
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -o backend ./internal/cmd/server/main.go
 
 FROM gcr.io/distroless/static:nonroot
 

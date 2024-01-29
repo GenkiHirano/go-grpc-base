@@ -49,3 +49,11 @@ proto-mod-update:
 proto-check:
 	docker-compose run --rm sample_buf format -w
 	docker-compose run --rm sample_buf lint
+
+go-mod-tidy:
+	docker-compose exec sample_app go mod tidy
+
+go-fmt:
+	docker-compose exec sample_app go fmt ./...
+
+# TODO: lint実装 (ライブラリ選定含む)
