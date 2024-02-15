@@ -7,10 +7,10 @@ import (
 )
 
 type Config struct {
-	Environment EnvironmentConfig
-	App         AppConfig
-	DB          DBConfig
-	AWS         AWSConfig
+	Environment Environment
+	App         App
+	DB          DB
+	AWS         AWS
 }
 
 func Init(ctx context.Context) (*Config, error) {

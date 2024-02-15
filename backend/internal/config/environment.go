@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-type EnvironmentConfig struct {
+type Environment struct {
 	Environment string `envconfig:"ENVIRONMENT" required:"true"`
 }
 
@@ -22,7 +22,7 @@ var validEnvironments = map[string]bool{
 	Production:  true,
 }
 
-func (e *EnvironmentConfig) validateContains(ctx context.Context) error {
+func (e *Environment) validateContains(ctx context.Context) error {
 	if _, ok := validEnvironments[e.Environment]; !ok {
 		// TODO: 実装する
 		// msg := fmt.Sprintf("the value '%s' set for the environment variable 'ENVIRONMENT' is invalid. Valid values are 'local', 'development', 'staging', or 'production'. please check your configuration.", e.Environment)

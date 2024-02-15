@@ -8,7 +8,6 @@ import (
 	"connectrpc.com/connect"
 	"connectrpc.com/grpchealth"
 	"connectrpc.com/grpcreflect"
-	"github.com/GenkiHirano/go-grpc-base/database"
 	"github.com/GenkiHirano/go-grpc-base/internal/config"
 	"github.com/GenkiHirano/go-grpc-base/internal/gen/sample/v1/samplev1connect"
 	"github.com/GenkiHirano/go-grpc-base/internal/interface-adapter/controller"
@@ -27,7 +26,14 @@ func run(ctx context.Context) error {
 		return err
 	}
 
-	db, err := database.Init(cfg.DB)
+	awsCfg, err := cfg.AWS.Init(ctx, cfg.Environment.Environment)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("awsCfg: ", awsCfg)
+
+	db, err := cfg.DB.Init()
 	if err != nil {
 		return err
 	}
