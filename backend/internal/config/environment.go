@@ -24,7 +24,7 @@ var validEnvironments = map[string]bool{
 
 func (e *Environment) validateContains(ctx context.Context) error {
 	if _, ok := validEnvironments[e.Environment]; !ok {
-		// TODO: 実装する
+		// TODO: カスタムエラーで返す
 		// msg := fmt.Sprintf("the value '%s' set for the environment variable 'ENVIRONMENT' is invalid. Valid values are 'local', 'development', 'staging', or 'production'. please check your configuration.", e.Environment)
 		// logging.FatalWithCtx(ctx, msg)
 		// return apperror.NewError(apperror.NewDetail(apperror.CodeInternal, ""))

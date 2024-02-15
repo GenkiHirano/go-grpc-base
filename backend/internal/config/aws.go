@@ -27,7 +27,6 @@ func (a *AWS) Init(ctx context.Context, env string) (*aws.Config, error) {
 			awsconfig.WithRegion(a.Region),
 			awsconfig.WithEndpointResolverWithOptions(customResolver),
 		)
-
 		if err != nil {
 			// TODO: カスタムエラーで返す
 			return nil, err

@@ -41,15 +41,20 @@ log:
 # 	@make seeder
 
 proto:
-	rm -rf backend/internal/gen
-	docker-compose run --rm sample_buf generate --template=buf.gen.yaml --path=proto/sample
+	@make proto-mod-update
+	@make proto-lint
+	@make proto-gen
 
 proto-mod-update:
 	docker-compose run -w /workspace/proto sample_buf mod update
 
-proto-check:
+proto-lint:
 	docker-compose run --rm sample_buf format -w
 	docker-compose run --rm sample_buf lint
+
+proto-gen:
+	rm -rf backend/internal/gen
+	docker-compose run --rm sample_buf generate --template=buf.gen.yaml --path=proto/sample
 
 go-mod-tidy:
 	docker-compose exec sample_app go mod tidy
