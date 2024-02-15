@@ -13,7 +13,7 @@ type Config struct {
 	AWS         AWSConfig
 }
 
-func LoadConfig(ctx context.Context) (*Config, error) {
+func Init(ctx context.Context) (*Config, error) {
 	cfg := Config{}
 	if err := envconfig.Process("", &cfg); err != nil {
 		// TODO: 実装する

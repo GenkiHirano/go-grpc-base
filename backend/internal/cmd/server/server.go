@@ -3,177 +3,74 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 
+	"connectrpc.com/connect"
+	"connectrpc.com/grpchealth"
+	"connectrpc.com/grpcreflect"
+	"github.com/GenkiHirano/go-grpc-base/database"
 	"github.com/GenkiHirano/go-grpc-base/internal/config"
+	"github.com/GenkiHirano/go-grpc-base/internal/gen/sample/v1/samplev1connect"
+	"github.com/GenkiHirano/go-grpc-base/internal/interface-adapter/controller"
+	"github.com/GenkiHirano/go-grpc-base/internal/usecase"
 )
-
-// func initDB(conf config.DBConfig) (*bun.DB, error) {
-// 	sqlDB, err := sql.Open(
-// 		conf.DBDriver,
-// 		fmt.Sprintf(
-// 			"%s:%s@tcp(%s:%s)/%s?parseTime=true",
-// 			conf.DBUsername, conf.DBPassword, conf.DBHost, conf.DBPort, conf.DBName,
-// 		),
-// 	)
-// 	if err != nil {
-// 		return nil, apperror.WrapWithMessage(
-// 			err,
-// 			apperror.NewDetail(apperror.CodeInternal, "failed to open db"),
-// 		)
-// 	}
-
-// 	if err := sqlDB.Ping(); err != nil {
-// 		return nil, apperror.WrapWithMessage(
-// 			err,
-// 			apperror.NewDetail(apperror.CodeInternal, "invalid connection to db"),
-// 		)
-// 	}
-
-// 	sqlDB.SetMaxIdleConns(10)
-// 	sqlDB.SetMaxOpenConns(50)
-// 	sqlDB.SetConnMaxLifetime(300 * time.Second)
-// 	boil.SetDB(sqlDB)
-
-// 	return bun.NewDB(sqlDB, mysqldialect.New()), nil
-// }
-
-// func healthCheck(w http.ResponseWriter, r *http.Request) {
-// 	w.WriteHeader(http.StatusOK)
-// 	fmt.Fprintf(w, "ok")
-// }
-
-// func getAppNameFromEnvironmentVariable() (string, error) {
-// 	appName := os.Getenv("AI_FORTUNE_APP_NAME")
-// 	if appName == "" {
-// 		return "", apperror.NewError(apperror.NewDetail(
-// 			apperror.CodeInternal,
-// 			"AI_FORTUNE_APP_NAME not set, this value is required",
-// 		))
-// 	}
-
-// 	return appName, nil
-// }
 
 func run(ctx context.Context) error {
 	fmt.Println("🔥")
-	// appName, err := getAppNameFromEnvironmentVariable()
-	// if err != nil {
-	// 	return err
-	// }
 
 	// if err := logging.NewZap(appName, logging.LogTypeApp); err != nil {
 	// 	return err
 	// }
 
-	cfg, err := config.LoadConfig(ctx)
+	cfg, err := config.Init(ctx)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("cfg: ", cfg)
+	db, err := database.Init(cfg.DB)
+	if err != nil {
+		return err
+	}
 
-	// db, err := initDB(cfg.DB)
-	// if err != nil {
-	// 	return err
-	// }
+	defer db.Close()
 
-	// defer db.Close()
+	fmt.Println("db: ", db)
 
-	// awsCfg, err := awsconfig.LoadDefaultConfig(ctx)
-	// if err != nil {
-	// 	return apperror.WrapWithMessage(err, apperror.NewDetail(apperror.CodeInternal, "failed to load aws config"))
-	// }
+	sampleHandlerOption := []connect.HandlerOption{
+		connect.WithInterceptors(
+		// interceptor.NewErrorLog().WrapErrorAndSetLogContext(),
+		// 現在時刻
+		),
+	}
 
-	// dynamodbClient := dynamodb.NewFromConfig(awsCfg)
-	// s3Client := s3.NewPresignClient(s3.NewFromConfig(awsCfg))
+	// gatewaySampleUser := gateway.NewSampleUser()
 
-	// linebotClient, err := linebot.New(cfg.LINE.Messaging.ChannelSecret, cfg.LINE.Messaging.AccessToken)
-	// if err != nil {
-	// 	return apperror.WrapWithMessage(err, apperror.NewDetail(apperror.CodeInternal, "failed to line bot client"))
-	// }
+	usecaseSampleUser := usecase.NewSampleUser(db)
 
-	// llmURL := &url.URL{
-	// 	Scheme: "http",
-	// 	Host:   net.JoinHostPort(cfg.LLM.AppName, cfg.LLM.AppPort),
-	// }
-	// connectHTTPClient := http.Client{
-	// 	Transport: &http2.Transport{
-	// 		AllowHTTP: true,
-	// 		DialTLSContext: func(ctx context.Context, network, addr string, t *tls.Config) (net.Conn, error) {
-	// 			return net.Dial(network, addr)
-	// 		},
-	// 	},
-	// }
-	// llmClient := llmv1connect.NewLLMServiceClient(&connectHTTPClient, llmURL.String(), connect.WithGRPC())
+	sampleAPI := controller.NewSample(
+		usecaseSampleUser,
+	)
 
-	// consumerHandlerOption := []connect.HandlerOption{
-	// 	connect.WithInterceptors(
-	// 		interceptor.NewErrorLog().WrapErrorAndSetLogContext(),
-	// 		interceptor.NewConsumerAuth(cookie.New(), db, gateway.NewConsumer(), gateway.NewConsumerAuth(cfg.LINE.Login)).LINEAuth(),
-	// 	),
-	// }
+	mux := http.NewServeMux()
+	mux.Handle(samplev1connect.NewSampleServiceHandler(sampleAPI, sampleHandlerOption...))
 
-	// consumerToBHandlerOption := []connect.HandlerOption{
-	// 	connect.WithInterceptors(
-	// 		interceptor.NewErrorLog().WrapErrorAndSetLogContext(),
-	// 	),
-	// }
+	services := []string{
+		samplev1connect.SampleServiceName,
+	}
 
-	// gatewayPlan := gateway.NewPlan()
-	// univapayConf := cfg.Subscription.Univapay
-	// gatewaySubscription := gateway.NewSubscription(univapayConf.StoreID, univapayConf.AppToken, univapayConf.TokenSecret)
-	// gatewayCompany := gateway.NewCompany(cfg.AWS.S3.BucketName, s3Client)
-	// gatewayConsumer := gateway.NewConsumer()
-	// gatewayConsumerAuth := gateway.NewConsumerAuth(cfg.LINE.Login)
-	// gatewayFortune := gateway.NewFortune(cfg.Fortune, cfg.AWS.DynamoDB.FriendTarotHistoryTableName, cfg.AWS.S3.BucketName, llmClient, dynamodbClient, s3Client)
-	// gatewayChat := gateway.NewChat(dynamodbClient, cfg.AWS.DynamoDB.ChatHistoryTableName, linebotClient, llmClient)
-	// gatewayNotification := gateway.NewNotification(cfg.Notification.SlackConfig.WebhookURL)
+	checker := grpchealth.NewStaticChecker(services...)
+	mux.Handle(grpchealth.NewHandler(checker))
 
-	// usecaseConsumer := usecase.NewConsumer(db, gatewayConsumer, gatewayConsumerAuth, gatewaySubscription, gatewaySubscription, gatewayPlan, gatewayNotification)
-	// usecaseConsumerAuth := usecase.NewConsumerAuth(db, gatewayConsumer, gatewayConsumerAuth, gatewaySubscription, gatewayPlan)
-	// usecaseFortune := usecase.NewFortune(db, gatewayConsumer, gatewayFortune, gatewayChat, gatewayPlan)
-	// usecaseSubscription := usecase.NewSubscription(db, gatewayConsumer, gatewayPlan, gatewaySubscription, gatewayNotification)
+	reflector := grpcreflect.NewStaticReflector(services...)
+	mux.Handle(grpcreflect.NewHandlerV1(reflector))
+	mux.Handle(grpcreflect.NewHandlerV1Alpha(reflector))
 
-	// consumerAPI := controller.NewConsumer(
-	// 	cookie.New(),
-	// 	db,
-	// 	cfg.LLM,
-	// 	cfg.Subscription.Univapay,
-	// 	gatewayConsumerAuth,
-	// 	gatewayChat,
-	// 	gatewayConsumer,
-	// 	gatewayFortune,
-	// 	gatewayPlan,
-	// 	usecaseConsumerAuth,
-	// 	usecaseFortune,
-	// 	usecaseConsumer,
-	// 	usecaseSubscription,
-	// )
-
-	// consumerToBAPI := controller.NewConsumerToB(cfg.LLM, usecaseFortune, gatewayFortune, gatewayCompany, db)
-
-	// mux := http.NewServeMux()
-	// mux.Handle(aifortunev1connect.NewConsumerServiceHandler(consumerAPI, consumerHandlerOption...))
-	// mux.Handle(aifortunev1connect.NewConsumerToBServiceHandler(consumerToBAPI, consumerToBHandlerOption...))
-
-	// services := []string{
-	// 	aifortunev1connect.ConsumerServiceName,
-	// 	aifortunev1connect.ConsumerToBServiceName,
-	// }
-
-	// checker := grpchealth.NewStaticChecker(services...)
-	// mux.Handle(grpchealth.NewHandler(checker))
-
-	// reflector := grpcreflect.NewStaticReflector(services...)
-	// mux.Handle(grpcreflect.NewHandlerV1(reflector))
-	// mux.Handle(grpcreflect.NewHandlerV1Alpha(reflector))
-
-	// mux.Handle("/healthcheck", http.HandlerFunc(healthCheck))
+	mux.Handle("/healthcheck", http.HandlerFunc(healthCheck))
 
 	// corsHandler := cors.New(cors.Options{
 	// 	Debug:            false,
 	// 	AllowedHeaders:   []string{"*"},
-	// 	AllowedOrigins:   []string{"https://localhost:3001", "http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "https://dev-ai-fortune.vercel.app"},
+	// 	AllowedOrigins:   []string{"http://localhost:3000"},
 	// 	AllowCredentials: true,
 	// 	AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut},
 	// 	MaxAge:           1000,
@@ -211,4 +108,10 @@ func run(ctx context.Context) error {
 
 	// return eg.Wait()
 	return nil
+}
+
+func healthCheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	// TODO: ログ出力
+	fmt.Fprintf(w, "ok")
 }

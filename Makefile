@@ -2,23 +2,22 @@ include .env
 
 .PHONY: proto
 
-build:
-	docker-compose build
+init:
+	@make up
+	@make proto
+# @make migrate
 
 rebuild-up:
 	@make down
 	@make build
 	@make up
 
-init:
+reup:
+	@make down
 	@make up
-	@make proto
-# @make migrate
 
-# setup-db:
-# 	@make migrate-down
-# 	@make migrate
-# 	@make seeder
+build:
+	docker-compose build
 
 up:
 	docker-compose up -d
@@ -29,15 +28,17 @@ stop:
 down:
 	docker-compose down
 
-reup:
-	@make down
-	@make up
-
 ps:
 	docker-compose ps
 
 log:
 	docker-compose logs -f sample_app
+
+# TODO: DB関連のコマンド追加する
+# setup-db:
+# 	@make migrate-down
+# 	@make migrate
+# 	@make seeder
 
 proto:
 	rm -rf backend/internal/gen
