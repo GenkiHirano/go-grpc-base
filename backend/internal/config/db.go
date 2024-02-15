@@ -14,10 +14,10 @@ import (
 
 type DB struct {
 	Driver   string `envconfig:"DB_DRIVER" required:"true" default:"mysql"`
-	Host     string `envconfig:"DB_HOST" required:"true"`
-	Port     string `envconfig:"DB_PORT" required:"true" default:"3306"`
 	Username string `envconfig:"DB_USERNAME" required:"true"`
 	Password string `envconfig:"DB_PASSWORD" required:"true" redact:"true"`
+	Host     string `envconfig:"DB_HOST" required:"true"`
+	Port     string `envconfig:"DB_PORT" required:"true" default:"3306"`
 	Name     string `envconfig:"DB_NAME" required:"true"`
 }
 
@@ -30,12 +30,14 @@ func (d *DB) Init() (*bun.DB, error) {
 		),
 	)
 	if err != nil {
+		fmt.Println("db-error-1: ", err)
 		// TODO: カスタムエラーでラップする
 		return nil, err
 	}
 
 	if err := sqlDB.Ping(); err != nil {
 		// TODO: カスタムエラーでラップする
+		fmt.Println("db-error-2: ", err)
 		return nil, err
 	}
 

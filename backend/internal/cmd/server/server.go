@@ -26,6 +26,8 @@ func run(ctx context.Context) error {
 		return err
 	}
 
+	fmt.Println("cfg: ", cfg)
+
 	awsCfg, err := cfg.AWS.Init(ctx, cfg.Environment.Environment)
 	if err != nil {
 		return err
@@ -35,6 +37,7 @@ func run(ctx context.Context) error {
 
 	db, err := cfg.DB.Init()
 	if err != nil {
+		fmt.Println("db error: ", err)
 		return err
 	}
 
