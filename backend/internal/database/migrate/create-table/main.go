@@ -28,13 +28,11 @@ func main() {
 func createTable(ctx context.Context) error {
 	cfg, err := config.Init(ctx)
 	if err != nil {
-		// TODO: カスタムエラーでラップする
 		return err
 	}
 
 	db, err := cfg.DB.Init()
 	if err != nil {
-		//　TODO: カスタムエラーでラップする
 		return err
 	}
 
@@ -44,7 +42,7 @@ func createTable(ctx context.Context) error {
 		query := db.NewCreateTable().Model(v).IfNotExists()
 		rawQuery, err := query.AppendQuery(db.Formatter(), nil)
 		if err != nil {
-			fmt.Println("🔥 AppendQuery Error: ", err)
+			//　TODO: カスタムエラーでラップする
 			return err
 		}
 
@@ -52,15 +50,16 @@ func createTable(ctx context.Context) error {
 		filePath := filepath.Join(".", fileName)
 
 		if err := os.WriteFile(filePath, rawQuery, 0644); err != nil {
-			fmt.Println("🔥 WriteFile Error: ", err)
+			//　TODO: カスタムエラーでラップする
 			return err
 		}
 
 		if _, err := db.ExecContext(ctx, string(rawQuery)); err != nil {
-			fmt.Println("🔥 ExecContext Error: ", err)
+			//　TODO: カスタムエラーでラップする
 			return err
 		}
 
+		// TODO: ログで出力する
 		fmt.Println("テーブル作成成功: ", query.GetTableName())
 	}
 
