@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"github.com/GenkiHirano/go-grpc-base/internal/config"
@@ -15,16 +16,16 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	if err := resetTable(ctx); err != nil {
+	if err := dropTable(ctx); err != nil {
 		// TODO: エラーをカスタムログで出力する
-		fmt.Println("reset table error: ", err)
+		fmt.Println("drop table error: ", err)
 	} else {
 		// TODO: 成功メッセージをカスタムログで出力する
-		fmt.Println("reset table success")
+		fmt.Println("drop table success")
 	}
 }
 
-func resetTable(ctx context.Context) error {
+func dropTable(ctx context.Context) error {
 	cfg, err := config.Init(ctx)
 	if err != nil {
 		// TODO: カスタムエラーでラップする
@@ -40,10 +41,28 @@ func resetTable(ctx context.Context) error {
 	defer db.Close()
 
 	for _, v := range schema.Schemas {
-		if err := db.ResetModel(ctx, v); err != nil {
+		query := db.NewDropTable().Model(v).IfExists()
+		rawQuery, err := query.AppendQuery(db.Formatter(), nil)
+		if err != nil {
 			// TODO: カスタムエラーでラップする
 			return err
 		}
+
+		fileName := query.GetTableName() + ".sql"
+		filePath := filepath.Join("./internal/database/migrate/drop-table/", fileName)
+
+		if err := os.WriteFile(filePath, rawQuery, 0644); err != nil {
+			//　TODO: カスタムエラーでラップする
+			return err
+		}
+
+		if _, err := db.ExecContext(ctx, string(rawQuery)); err != nil {
+			// TODO: カスタムエラーでラップする
+			return err
+		}
+
+		// TODO: ログで出力する
+		fmt.Println("テーブル削除成功: ", query.GetTableName())
 	}
 
 	return nil

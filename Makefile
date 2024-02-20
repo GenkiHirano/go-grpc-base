@@ -34,22 +34,20 @@ ps:
 log:
 	docker-compose logs -f sample_app
 
-# TODO: DB関連のコマンド追加する
-# setup-db:
-# 	@make migrate-down
-# 	@make migrate
-# 	@make seeder
+db-init:
+	@make db-down
+	@make db-up
 
-create-table:
-	docker-compose exec sample_app go run internal/database/migrate/create-table/main.go
+db-up:
+	docker-compose exec sample_app go run internal/cmd/database/create-table/main.go
 
-drop-table:
-	docker-compose exec sample_app go run internal/database/migrate/drop-table/main.go
+db-down:
+	docker-compose exec sample_app go run internal/cmd/database/drop-table/main.go
 
-reset-table:
-	docker-compose exec sample_app go run internal/database/migrate/reset-table/main.go
+db-reset:
+	docker-compose exec sample_app go run internal/cmd/database/reset-table/main.go
 
-proto:
+proto-init:
 	@make proto-mod-update
 	@make proto-lint
 	@make proto-gen
