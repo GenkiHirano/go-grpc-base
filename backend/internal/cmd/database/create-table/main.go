@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
+	"time"
 
 	"github.com/GenkiHirano/go-grpc-base/internal/config"
 	"github.com/GenkiHirano/go-grpc-base/internal/database/schema"
@@ -46,7 +47,7 @@ func createTable(ctx context.Context) error {
 			return err
 		}
 
-		fileName := query.GetTableName() + ".sql"
+		fileName := time.Now().Format("20060102150405") + "_" + query.GetTableName() + ".sql"
 		filePath := filepath.Join("./internal/database/migrate/create-table/", fileName)
 
 		if err := os.WriteFile(filePath, rawQuery, 0644); err != nil {
