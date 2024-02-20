@@ -44,9 +44,6 @@ db-up:
 db-down:
 	docker-compose exec sample_app go run internal/cmd/database/drop-table/main.go
 
-db-reset:
-	docker-compose exec sample_app go run internal/cmd/database/reset-table/main.go
-
 proto-init:
 	@make proto-mod-update
 	@make proto-lint
