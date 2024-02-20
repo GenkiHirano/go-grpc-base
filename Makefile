@@ -40,14 +40,14 @@ log:
 # 	@make migrate
 # 	@make seeder
 
-# TODO: 検証用 (命名は変える)
 create-table:
 	docker-compose exec sample_app go run internal/database/migrate/create-table/main.go
 
 drop-table:
 	docker-compose exec sample_app go run internal/database/migrate/drop-table/main.go
 
-# ここまで
+reset-table:
+	docker-compose exec sample_app go run internal/database/migrate/reset-table/main.go
 
 proto:
 	@make proto-mod-update
