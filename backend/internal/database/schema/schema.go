@@ -1,5 +1,6 @@
 package schema
 
 var Schemas = []any{
-	&User{},
+	&SampleUser{},
+	&SampleCompany{},
 }

@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/mysqldialect"
 	"github.com/volatiletech/sqlboiler/boil"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 type DB struct {
@@ -30,14 +29,12 @@ func (d *DB) Init() (*bun.DB, error) {
 		),
 	)
 	if err != nil {
-		fmt.Println("db-error-1: ", err)
 		// TODO: カスタムエラーでラップする
 		return nil, err
 	}
 
 	if err := sqlDB.Ping(); err != nil {
 		// TODO: カスタムエラーでラップする
-		fmt.Println("db-error-2: ", err)
 		return nil, err
 	}
 
