@@ -67,3 +67,17 @@ go-fmt:
 	docker-compose exec sample_app go fmt ./...
 
 # TODO: lint実装 (ライブラリ選定含む)
+
+gen-db-schema:
+	# must install atlas: https://atlasgo.io/getting-started/
+	docker-compose exec sample_app go run internal/cmd/database/create-table/main.go
+	atlas migrate diff \
+		--dir "file://backend/internal/database" \
+		--to "file://backend/internal/schema/000_schema.up.sql" \
+		--dev-url "docker://mysql/8/dev" \
+		--format '{{ sql . "  " }}'
+
+db-inspect:
+	docker-compose exec sample_db atlas schema inspect \
+		-u "mysql://sample:sample123@localhost:3306/sample_user" \
+		--web
